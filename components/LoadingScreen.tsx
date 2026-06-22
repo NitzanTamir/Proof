@@ -107,9 +107,9 @@ export default function LoadingScreen({ onCancel }: LoadingScreenProps) {
 
       <button
         onClick={onCancel}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#475569")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#94A3B8")}
-        style={{ background: "transparent", border: "none", padding: 0, color: "#94A3B8", fontSize: "13px", fontWeight: 400, cursor: "pointer", fontFamily: "Inter, sans-serif", marginTop: "56px", transition: "color 150ms ease" }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#1D4ED8")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#2563EB")}
+        style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "transparent", border: "none", padding: 0, color: "#2563EB", fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "Inter, sans-serif", marginTop: "56px", transition: "color 150ms ease" }}
       >
         ← Cancel and go back
       </button>

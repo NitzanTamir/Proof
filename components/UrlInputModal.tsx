@@ -265,46 +265,6 @@ export default function UrlInputModal({ onClose, onSubmit }: UrlInputModalProps)
     }
   }
 
-  // ─── Loading screen (unchanged) ───────────────────────────────────────────
-
-  if (step === "loading") {
-    return (
-      <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex items-center justify-center">
-        <div className="text-center w-full" style={{ maxWidth: "360px" }}>
-          <p className="font-mono text-[18px] font-bold tracking-[-0.3px] text-[#0F172A] mb-8">Proof</p>
-          <h1 className="text-[26px] font-semibold text-[#0F172A] mb-2" style={{ letterSpacing: "-0.5px" }}>
-            Analyzing your portfolio
-          </h1>
-          <p className="text-[13px] text-[#94A3B8] mb-10">This takes about 30 seconds</p>
-          <div className="inline-block text-left">
-            {LOADING_STEPS.map((s, i) => {
-              const done   = currentStep > i;
-              const active = currentStep === i;
-              return (
-                <div key={s} className="flex items-center gap-3 mb-4">
-                  {done && (
-                    <svg className="w-5 h-5 text-[#16A34A] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  )}
-                  {active && (
-                    <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] border-t-transparent animate-spin flex-shrink-0" />
-                  )}
-                  {!done && !active && (
-                    <div className="w-5 h-5 rounded-full border-2 border-[#E2E8F0] flex-shrink-0" />
-                  )}
-                  <span className={`text-[14px] ${active ? "font-medium text-[#0F172A]" : "text-[#94A3B8]"}`}>
-                    {s}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // ─── Modal overlay + card ─────────────────────────────────────────────────
 
   return (
