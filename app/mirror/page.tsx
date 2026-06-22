@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getAddressed, toggleAddressed } from "@/lib/addressed";
 import Layout from "@/components/Layout";
+import LoadingScreen from "@/components/LoadingScreen";
 import UrlInputModal from "@/components/UrlInputModal";
 import type { AuditRow, AuditFlag } from "@/lib/types";
 
@@ -65,7 +66,7 @@ function FlagRow({ flag, globalIndex, isSelected, isDismissing, onClick }: FlagR
     <div
       onClick={onClick}
       style={isDismissing ? { animation: "flagDismiss 250ms ease-in forwards" } : undefined}
-      className={`flex items-center gap-2 rounded-lg px-4 py-4 mb-2 cursor-pointer transition-colors ${
+      className={`flex items-center gap-2 rounded-lg px-4 py-4 mb-3 cursor-pointer transition-colors ${
         isSelected
           ? "border-[1.5px] border-[#2563EB] bg-[#EFF6FF]"
           : "border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]"
@@ -104,14 +105,14 @@ function ReviewerCard() {
           <p className="text-[12px] text-[#94A3B8]">8+ years · Both sides of hiring</p>
         </div>
       </div>
-      <div className="mt-3 mb-3 flex flex-wrap gap-[4px]">
+      <div className="mt-2 mb-4 flex flex-wrap gap-[4px]">
         {["Portfolio reviews", "Hiring panels", "Design mentorship"].map((tag) => (
           <span key={tag} style={{ fontSize: "12px", fontWeight: 500, padding: "3px 10px", borderRadius: "20px", whiteSpace: "nowrap", border: "1px solid #DBEAFE", backgroundColor: "#EFF6FF", color: "#2563EB" }}>
             {tag}
           </span>
         ))}
       </div>
-      <div className="pt-3 border-t border-[#E2E8F0]">
+      <div className="pt-4 border-t border-[#E2E8F0]">
         <p className="text-[14px] text-[#475569]" style={{ lineHeight: "1.6" }}>
           I read this the way a design lead would before deciding whether to pass your portfolio to the hiring manager.
         </p>
@@ -169,7 +170,7 @@ function DetailCard({ flag, isAddressed, onToggle }: DetailCardProps) {
     <div className={`bg-white rounded-xl p-6 ${detailBorderClass(flag.severity)}`}>
 
       {/* Header row */}
-      <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="flex items-start justify-between gap-3 mb-2">
         <p
           className={`min-w-0 ${isAddressed ? "line-through opacity-40" : ""}`}
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "16px", fontWeight: 700, color: severityTitleColor(flag.severity), letterSpacing: "-0.3px", lineHeight: "1.4" }}
@@ -185,7 +186,7 @@ function DetailCard({ flag, isAddressed, onToggle }: DetailCardProps) {
       </div>
 
       {/* Observation */}
-      <div className="mb-4">
+      <div className="mb-5">
         <p className="text-[14px] text-[#475569]" style={{ lineHeight: "1.65" }}>
           {flag.explanation}
         </p>
@@ -254,6 +255,7 @@ function MirrorContent() {
   const [deletingId, setDeletingId]           = useState<string | null>(null);
   const [dismissingIdx, setDismissingIdx]     = useState<number | null>(null);
   const [restoringIdx, setRestoringIdx]       = useState<number | null>(null);
+  const [isAnalyzing, setIsAnalyzing]         = useState(false);
   const dismissTimer                          = useRef<ReturnType<typeof setTimeout> | null>(null);
   const restoreTimer                          = useRef<ReturnType<typeof setTimeout> | null>(null);
   const popoverRef                            = useRef<HTMLDivElement | null>(null);
@@ -306,18 +308,25 @@ function MirrorContent() {
   }, [confirmDeleteId]);
 
   async function handleAnalyze(url: string) {
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
-    });
-    if (!res.ok) throw new Error("Analysis failed");
-    const { audit } = (await res.json()) as { audit: AuditRow };
-    const supabase = createClient();
-    const { data } = await supabase.from("audits").select("*").order("created_at", { ascending: false });
-    setAudits((data as AuditRow[]) ?? []);
-    setSelectedId(audit.id);
-    setSelectedFlagIdx(0);
+    console.log("handleAnalyze called, setting isAnalyzing true");
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      if (!res.ok) throw new Error("Analysis failed");
+      const { audit } = (await res.json()) as { audit: AuditRow };
+      const supabase = createClient();
+      const { data } = await supabase.from("audits").select("*").order("created_at", { ascending: false });
+      setAudits((data as AuditRow[]) ?? []);
+      setSelectedId(audit.id);
+      setSelectedFlagIdx(0);
+    } finally {
+      console.log("analysis complete, setting isAnalyzing false");
+      setIsAnalyzing(false);
+    }
   }
 
   async function handleDelete(auditId: string) {
@@ -431,7 +440,7 @@ function MirrorContent() {
 
     return (
       <div className="mb-6">
-        <p className={`text-[13px] font-semibold mb-3 ${labelClass}`}>{label}</p>
+        <p className={`text-[13px] font-semibold mb-2 ${labelClass}`}>{label}</p>
         {sectionFlags.map((flag, i) => {
           const gi = startIndex + i;
           if (isAddressed(gi) && dismissingIdx !== gi) return null;
@@ -556,7 +565,7 @@ function MirrorContent() {
                           <div style={{ borderTop: "1px solid #F1F5F9", marginTop: "20px", paddingTop: "16px" }}>
                             {audit.result.strengths.map((s, i) => {
                               return (
-                                <div key={i} style={{ background: "#F8FAFC", borderRadius: "8px", padding: "8px 12px", display: "flex", alignItems: "center", gap: "8px", marginBottom: i < audit.result.strengths!.length - 1 ? "4px" : 0 }}>
+                                <div key={i} style={{ background: "#F8FAFC", borderRadius: "8px", padding: "8px 12px", display: "flex", alignItems: "center", gap: "8px", marginBottom: i < audit.result.strengths!.length - 1 ? "12px" : 0 }}>
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                                     <circle cx="12" cy="12" r="9" />
                                     <path d="M9 12l2 2 4-4" />
@@ -591,7 +600,7 @@ function MirrorContent() {
                           {/* Addressed section */}
                           {hasAddressedFlags && (
                             <div className="mt-6">
-                              <div className="flex items-center gap-[4px] mb-3">
+                              <div className="flex items-center gap-[4px] mb-2">
                                 <svg className="w-4 h-4 text-[#16A34A] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -608,7 +617,7 @@ function MirrorContent() {
                                         ? "flagDismiss 250ms ease-in forwards"
                                         : "fadeInUp 200ms ease-out 50ms both",
                                     }}
-                                    className={`flex items-center gap-2 rounded-lg px-4 py-4 mb-2 cursor-pointer border bg-[#F8FAFC] transition-colors ${
+                                    className={`flex items-center gap-2 rounded-lg px-4 py-4 mb-3 cursor-pointer border bg-[#F8FAFC] transition-colors ${
                                       selectedFlagIdx === gi
                                         ? "border-[#2563EB]"
                                         : "border-[#E2E8F0] hover:bg-[#F1F5F9]"
@@ -706,6 +715,10 @@ function MirrorContent() {
           onClose={() => setModalOpen(false)}
           onSubmit={handleAnalyze}
         />
+      )}
+
+      {isAnalyzing && (
+        <LoadingScreen onCancel={() => setIsAnalyzing(false)} />
       )}
 
     </>

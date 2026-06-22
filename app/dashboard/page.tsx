@@ -102,24 +102,7 @@ function fixToBullets(fix: unknown): string[] {
   return [];
 }
 
-function findSecondMove(audits: AuditRow[], skip: { flag: AuditFlag; audit: AuditRow } | null): { flag: AuditFlag; audit: AuditRow } | null {
-  if (!skip) return null;
-  let best: { flag: AuditFlag; audit: AuditRow } | null = null;
-  for (const audit of audits) {
-    const ordered   = getOrderedFlags(audit);
-    const addressed = getAddressed(audit.id);
-    for (let i = 0; i < ordered.length; i++) {
-      if (addressed.has(String(i))) continue;
-      const flag = ordered[i];
-      if (audit.id === skip.audit.id && flag.title === skip.flag.title) continue;
-      if (!best) { best = { flag, audit }; continue; }
-      const bestSev = SEVERITY_ORDER[best.flag.severity] ?? 2;
-      const thisSev = SEVERITY_ORDER[flag.severity] ?? 2;
-      if (thisSev < bestSev || (thisSev === bestSev && (flag.time_estimate_minutes ?? 0) > (best.flag.time_estimate_minutes ?? 0))) best = { flag, audit };
-    }
-  }
-  return best;
-}
+
 
 function getFixedFlags(audits: AuditRow[]): Array<{ flag: AuditFlag; audit: AuditRow }> {
   const result: Array<{ flag: AuditFlag; audit: AuditRow }> = [];
@@ -136,50 +119,60 @@ function getFixedFlags(audits: AuditRow[]): Array<{ flag: AuditFlag; audit: Audi
 }
 
 function auditDotColor(audit: AuditRow): string {
-  const flags = audit.result?.flags ?? [];
-  if (flags.some((f) => f.severity === "Critical")) return "bg-[#DC2626]";
-  if (flags.some((f) => f.severity === "Improve"))  return "bg-[#D97706]";
+  const ordered   = getOrderedFlags(audit);
+  const addressed = getAddressed(audit.id);
+  const remaining = ordered.filter((_, i) => !addressed.has(String(i)));
+  if (remaining.some((f) => f.severity === "Critical")) return "bg-[#DC2626]";
+  if (remaining.some((f) => f.severity === "Improve"))  return "bg-[#D97706]";
   return "bg-[#16A34A]";
 }
 
 function flagSummaryText(audit: AuditRow): string {
-  const flags    = audit.result?.flags ?? [];
-  const critical = flags.filter((f) => f.severity === "Critical").length;
-  const improve  = flags.filter((f) => f.severity === "Improve").length;
+  const ordered   = getOrderedFlags(audit);
+  const addressed = getAddressed(audit.id);
+  const remaining = ordered.filter((_, i) => !addressed.has(String(i)));
+  const critical  = remaining.filter((f) => f.severity === "Critical").length;
+  const improve   = remaining.filter((f) => f.severity === "Improve").length;
   const parts: string[] = [];
   if (critical > 0) parts.push(`${critical} critical`);
   if (improve > 0)  parts.push(`${improve} improve`);
-  return parts.length > 0 ? parts.join(", ") : "No flags";
+  if (parts.length > 0) return parts.join(", ");
+  return ordered.length > 0 && remaining.length === 0 ? "All fixed" : "No flags";
 }
 
-function nextMoveBadgeClass(s: string) {
-  if (s === "Critical") return "bg-[#FEF2F2] text-[#B91C1C] border-[#FECACA]";
-  if (s === "Improve")  return "bg-[#FFFBEB] text-[#B45309] border-[#FDE68A]";
-  return "bg-[#F1F5F9] text-[#475569] border-[#E2E8F0]";
-}
 
 // ─── icons ───────────────────────────────────────────────────────────────────
 
-function IconFile({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-    </svg>
-  );
-}
 
-function IconCheck({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  );
-}
 
-function IconClock({ className }: { className?: string }) {
+function BulletIcon({ bullet }: { bullet: string }) {
+  const t = bullet.toLowerCase();
+  let paths: React.ReactNode;
+  if (/\b(metric|impact|result|outcome|number|data|stat|roi|conversion|measur)\b/.test(t)) {
+    paths = <>
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </>;
+  } else if (/\b(show|display|visual|see|view|look|highlight|present|screenshot|visible)\b/.test(t)) {
+    paths = <>
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </>;
+  } else if (/\b(structur|organiz|section|layout|format|step|list|hierarch|order)\b/.test(t)) {
+    paths = <>
+      <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+    </>;
+  } else if (/\b(explain|context|narrativ|story|reason|why|thinking|thought|communicat|message)\b/.test(t)) {
+    paths = <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />;
+  } else {
+    paths = <>
+      <path d="M4 20h4l10.5-10.5a2.828 2.828 0 1 0-4-4L4 16v4z" />
+      <path d="M13.5 6.5l4 4" />
+    </>;
+  }
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {paths}
     </svg>
   );
 }
@@ -245,7 +238,7 @@ export default function DashboardPage() {
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
-  const secondMove = findSecondMove(audits, nextMove);
+
 
   return (
     <>
@@ -274,13 +267,13 @@ export default function DashboardPage() {
             {/* LEFT: Your Next Move */}
             <div className="overflow-y-auto min-h-0 h-full">
             <div className="bg-white border border-[#DBEAFE] rounded-xl p-6 h-full flex flex-col">
-              <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-start justify-between gap-4">
                 <p className="font-display text-[15px] font-semibold text-[#2563EB]">Your next move</p>
                 {nextMove && (
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className="text-[13px] text-[#94A3B8]">~{nextMove.flag.time_estimate_minutes} min</span>
-                    <span className={`text-[12px] font-medium border rounded-full px-[10px] py-[3px] ${nextMoveBadgeClass(nextMove.flag.severity)}`}>
-                      {nextMove.flag.type}
+                    <span style={{ background: "#F1F5F9", color: "#475569", border: "1px solid #E2E8F0", borderRadius: "20px", padding: "3px 10px", fontSize: "12px", fontWeight: 500, display: "inline-flex", alignItems: "center", height: "26px" }}>
+                      {nextMove.audit.result?.title || nextMove.audit.url}
                     </span>
                   </div>
                 )}
@@ -302,52 +295,40 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <>
-                  <p className="font-display text-[22px] font-bold text-[#0F172A] mb-3" style={{ letterSpacing: "-0.4px", lineHeight: "1.3" }}>
+                  <p className="font-display text-[22px] font-bold text-[#0F172A]" style={{ letterSpacing: "-0.4px", lineHeight: "1.3", marginTop: "8px" }}>
                     {nextMove.flag.title}
                   </p>
 
-                  <p className="text-[14px] text-[#475569] mb-5" style={{ lineHeight: "1.65" }}>
+                  <p className="text-[14px] text-[#475569]" style={{ lineHeight: "1.65", marginTop: "8px" }}>
                     {nextMove.flag.explanation}
                   </p>
 
-                  <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: "16px", marginBottom: "20px" }}>
-                    <div className="flex items-center gap-[4px] mb-2">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5z" />
-                        <path d="M13.5 6.5l4 4" />
-                      </svg>
-                      <p className="text-[12px] font-semibold text-[#475569]">How to fix</p>
-                    </div>
-                    <div className="flex flex-col">
-                      {fixToBullets(nextMove.flag.fix).map((bullet, i, arr) => (
-                        <div key={i} className="flex items-start gap-1" style={{ marginBottom: i < arr.length - 1 ? "12px" : 0 }}>
-                          <span style={{ fontSize: "12px", fontWeight: 500, color: "#0F172A", flexShrink: 0, marginTop: "2px" }}>→</span>
-                          <p className="text-[14px] text-[#475569]" style={{ lineHeight: "1.6", margin: 0 }}>{bullet}</p>
+<p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "14px", fontWeight: 700, color: "#0F172A", marginTop: "20px", marginBottom: "12px" }}>
+                    How to fix
+                  </p>
+
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                    {(() => {
+                      const bullets = fixToBullets(nextMove.flag.fix);
+                      return bullets.map((bullet, i) => (
+                      <div key={i} style={{ border: "1px solid #E2E8F0", borderRadius: "10px", padding: "16px", display: "flex", flexDirection: "column", flex: "0 1 auto", width: "fit-content", minWidth: "280px", maxWidth: "420px" }}>
+                        <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: "#EFF6FF", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+                          <BulletIcon bullet={bullet} />
                         </div>
-                      ))}
-                    </div>
+                        <p style={{ fontSize: "15px", fontWeight: 500, color: "#0F172A", lineHeight: "1.55", flex: 1, marginBottom: "14px" }}>
+                          {bullet}
+                        </p>
+                        <Link
+                          href={`/mirror?id=${nextMove.audit.id}`}
+                          className="text-[#2563EB] hover:text-[#1D4ED8] transition-colors duration-150"
+                          style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "transparent", border: "none", padding: 0, fontSize: "12px", fontWeight: 600 }}
+                        >
+                          Let&apos;s fix this →
+                        </Link>
+                      </div>
+                    ));
+                    })()}
                   </div>
-
-                  <div className="flex items-center gap-[4px] mb-5">
-                    <IconFile className="w-4 h-4 text-[#94A3B8] flex-shrink-0" />
-                    <span className="text-[13px] text-[#94A3B8]">
-                      Found in: {nextMove.audit.result?.title || nextMove.audit.url}
-                    </span>
-                  </div>
-
-                  <Link
-                    href={`/mirror?id=${nextMove.audit.id}`}
-                    className="inline-block self-start w-auto bg-[#2563EB] text-white rounded-lg py-3 px-6 text-[14px] font-semibold hover:bg-[#1D4ED8] active:bg-[#1E40AF] transition-colors"
-                  >
-                    Let&apos;s fix this →
-                  </Link>
-
-                  {secondMove && (
-                    <div style={{ paddingTop: "8px", marginTop: "12px", borderTop: "1px solid #F1F5F9" }}>
-                      <span className="text-[12px] text-[#94A3B8]">Next up: </span>
-                      <span className="text-[12px] text-[#475569]">{secondMove.flag.title}</span>
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -357,21 +338,23 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-4 overflow-y-auto">
 
               {/* Your progress */}
-              <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "4px" }}>
-                  <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "15px", fontWeight: 600, color: "#0F172A" }}>Your progress</p>
-                  <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "36px", fontWeight: 700, color: "#2563EB", letterSpacing: "-0.3px", alignSelf: "flex-start", marginTop: 0 }}>
+              <div className="bg-white border border-[#E2E8F0] rounded-xl pt-4 pr-6 pb-6 pl-6">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "10px" }}>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "15px", fontWeight: 600, color: "#0F172A", marginBottom: "8px" }}>Your progress</p>
+                    <p className="text-[14px] text-[#475569]" style={{ margin: 0 }}>{readinessText}</p>
+                  </div>
+                  <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "36px", fontWeight: 700, color: "#2563EB", letterSpacing: "-0.3px" }}>
                     {readinessPercent}%
                   </span>
                 </div>
-                <p className="text-[14px] text-[#475569]" style={{ marginBottom: "12px" }}>{readinessText}</p>
                 <div className="w-full bg-[#F1F5F9] h-[6px] rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full bg-[#2563EB] transition-all"
                     style={{ width: `${readinessPercent}%` }}
                   />
                 </div>
-                <div className="flex items-center gap-3 flex-wrap" style={{ marginTop: "12px" }}>
+                <div className="flex items-center gap-3 flex-wrap" style={{ marginTop: "16px" }}>
                   <div className="flex items-center gap-[4px]">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
                     <span className="text-[13px] text-[#475569]">{criticalRemaining} critical left</span>
@@ -388,8 +371,8 @@ export default function DashboardPage() {
               </div>
 
               {/* Your Pages */}
-              <div className="bg-white border border-[#E2E8F0] rounded-xl p-6" style={{ borderTop: "2px solid #2563EB" }}>
-                <p className="font-display text-[15px] font-semibold text-[#0F172A] mb-4">Your pages</p>
+              <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
+                <p className="font-display text-[15px] font-semibold text-[#0F172A] mb-2">Your pages</p>
 
                 {audits.length === 0 ? (
                   <p className="text-[13px] text-[#94A3B8]">
@@ -400,24 +383,21 @@ export default function DashboardPage() {
                     {audits.map((audit, i) => (
                       <div
                         key={audit.id}
-                        className={`flex items-start justify-between gap-2 ${
-                          i < audits.length - 1 ? "border-b border-[#F1F5F9] pb-3 mb-3" : ""
-                        }`}
+                        style={{ border: "1px solid #E2E8F0", borderRadius: "8px", padding: "14px", marginBottom: i < audits.length - 1 ? "10px" : 0, display: "flex", alignItems: "center", gap: "12px" }}
                       >
-                        <div className="flex items-start gap-[4px] min-w-0">
-                          <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${auditDotColor(audit)}`} />
-                          <div className="min-w-0">
-                            <p className="text-[14px] font-medium text-[#0F172A]" style={{ lineHeight: "1.3" }}>
-                              {audit.result?.title || audit.url}
-                            </p>
-                            <p className="text-[13px] text-[#94A3B8]">
-                              {PAGE_TYPE_LABEL[audit.page_type] ?? "Other"} · {flagSummaryText(audit)}
-                            </p>
-                          </div>
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${auditDotColor(audit)}`} />
+                        <div className="min-w-0" style={{ flex: 1 }}>
+                          <p className="font-semibold text-[#1E293B]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "13px", lineHeight: "1.3" }}>
+                            {audit.result?.title || audit.url}
+                          </p>
+                          <p className="text-[13px] text-[#94A3B8]">
+                            {PAGE_TYPE_LABEL[audit.page_type] ?? "Other"} · {flagSummaryText(audit)}
+                          </p>
                         </div>
                         <Link
                           href={`/mirror?id=${audit.id}`}
-                          className="text-[13px] font-medium text-[#2563EB] hover:underline flex-shrink-0"
+                          className="text-[#2563EB] hover:text-[#1D4ED8] transition-colors duration-150"
+                          style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "transparent", border: "none", padding: 0, fontSize: "12px", fontWeight: 600, flexShrink: 0 }}
                         >
                           View →
                         </Link>
@@ -429,7 +409,7 @@ export default function DashboardPage() {
 
               {/* What you've fixed */}
               <div className="bg-white border border-[#E2E8F0] rounded-xl p-6">
-                <p className="font-display text-[15px] font-semibold text-[#0F172A] mb-4">What you&apos;ve fixed</p>
+                <p className="font-display text-[15px] font-semibold text-[#0F172A] mb-2">What you&apos;ve fixed</p>
 
                 {fixedFlags.length === 0 ? (
                   <p className="text-[13px] text-[#94A3B8]">
@@ -440,16 +420,24 @@ export default function DashboardPage() {
                     {fixedFlags.map(({ flag, audit }, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-[4px] mb-3 last:mb-0"
                         style={{
+                          background: "#F0FDF4",
+                          borderRadius: "8px",
+                          padding: "12px 14px",
+                          marginBottom: i < fixedFlags.length - 1 ? "6px" : 0,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
                           animation: "fadeInUp 300ms ease-out both",
                           animationDelay: `${i * 80}ms`,
                         }}
                       >
-                        <IconCheck className="w-[18px] h-[18px] text-[#16A34A] flex-shrink-0" />
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#16A34A" style={{ flexShrink: 0 }}>
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 14.5l-4-4 1.41-1.41L10.5 13.67l5.59-5.59L17.5 9.5l-7 7z"/>
+                        </svg>
                         <div>
-                          <p className="text-[14px] text-[#475569] line-through leading-snug">{flag.title}</p>
-                          <p className="text-[12px] text-[#94A3B8]">
+                          <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "13px", fontWeight: 600, color: "#15803D" }}>{flag.title}</p>
+                          <p style={{ fontSize: "13px", color: "#94A3B8", marginTop: "2px" }}>
                             {audit.result?.title || audit.url} · {daysAgo(audit.created_at)}
                           </p>
                         </div>

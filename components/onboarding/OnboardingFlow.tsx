@@ -97,7 +97,7 @@ export default function OnboardingFlow() {
     const allDone = loadingStep === 5;
 
     return (
-      <div className="min-h-screen bg-[#EFF6FF] flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden" style={{ background: "linear-gradient(-45deg, #EFF6FF, #DBEAFE, #EFF6FF, #F0F9FF)", backgroundSize: "400% 400%", animation: "gradientShift 6s ease infinite" }}>
         <style>{`
           @keyframes fadeSlideIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -116,134 +116,14 @@ export default function OnboardingFlow() {
             from { opacity: 0; }
             to   { opacity: 1; }
           }
-          @keyframes float1 {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            50%      { transform: translate(10px, -14px) rotate(2deg); }
-          }
-          @keyframes float2 {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            50%      { transform: translate(-12px, 10px) rotate(-2deg); }
-          }
-          @keyframes float3 {
-            0%, 100% { transform: translate(0, 0); }
-            50%      { transform: translate(8px, 12px); }
-          }
-          @keyframes float4 {
-            0%, 100% { transform: translate(0, 0); }
-            50%      { transform: translate(-6px, -10px); }
+          @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
           }
         `}</style>
 
-        {/* Floating background illustrations */}
-        {/* a: Top-left card */}
-        <div className="absolute top-[8%] left-[5%] opacity-[0.06] pointer-events-none" style={{ animation: "float1 7s ease-in-out infinite" }}>
-          <svg width="108" height="72" viewBox="0 0 90 60" fill="#2563EB">
-            <rect width="90" height="60" rx="6"/>
-            <rect x="8" y="10" width="42" height="6" rx="2" fill="white"/>
-            <rect x="8" y="22" width="64" height="4" rx="2" fill="white"/>
-            <rect x="8" y="30" width="52" height="4" rx="2" fill="white"/>
-            <rect x="8" y="38" width="38" height="4" rx="2" fill="white"/>
-            <rect x="8" y="47" width="28" height="7" rx="3" fill="white"/>
-          </svg>
-        </div>
-
-        {/* b: Top-right grid/dashboard */}
-        <div className="absolute top-[15%] right-[5%] opacity-[0.06] pointer-events-none" style={{ animation: "float2 9s ease-in-out infinite" }}>
-          <svg width="84" height="84" viewBox="0 0 70 70" fill="#2563EB">
-            <rect width="70" height="70" rx="6"/>
-            <rect x="6" y="8" width="16" height="16" rx="3" fill="white"/>
-            <rect x="27" y="8" width="16" height="16" rx="3" fill="white"/>
-            <rect x="48" y="8" width="16" height="16" rx="3" fill="white"/>
-            <rect x="6" y="30" width="58" height="4" rx="2" fill="white"/>
-            <rect x="6" y="38" width="44" height="4" rx="2" fill="white"/>
-            <rect x="6" y="50" width="26" height="7" rx="3" fill="white"/>
-            <rect x="38" y="50" width="26" height="7" rx="3" fill="white"/>
-          </svg>
-        </div>
-
-        {/* c: Bottom-left wide card */}
-        <div className="absolute bottom-[18%] left-[4%] opacity-[0.06] pointer-events-none" style={{ animation: "float3 8s ease-in-out infinite" }}>
-          <svg width="120" height="52" viewBox="0 0 100 44" fill="#2563EB">
-            <rect width="100" height="44" rx="6"/>
-            <rect x="8" y="9" width="36" height="5" rx="2" fill="white"/>
-            <rect x="8" y="19" width="68" height="4" rx="2" fill="white"/>
-            <rect x="8" y="27" width="52" height="4" rx="2" fill="white"/>
-            <rect x="8" y="34" width="24" height="6" rx="3" fill="white"/>
-          </svg>
-        </div>
-
-        {/* d: Bottom-right mobile card */}
-        <div className="absolute bottom-[25%] right-[4%] opacity-[0.06] pointer-events-none" style={{ animation: "float4 6s ease-in-out infinite" }}>
-          <svg width="68" height="96" viewBox="0 0 56 80" fill="#2563EB">
-            <rect width="56" height="80" rx="6"/>
-            <rect x="6" y="8" width="44" height="28" rx="3" fill="white"/>
-            <rect x="6" y="42" width="36" height="5" rx="2" fill="white"/>
-            <rect x="6" y="51" width="28" height="4" rx="2" fill="white"/>
-            <rect x="6" y="58" width="22" height="4" rx="2" fill="white"/>
-            <rect x="6" y="67" width="44" height="7" rx="3" fill="white"/>
-          </svg>
-        </div>
-
-        {/* e: Mid-left pill/badge */}
-        <div className="absolute top-[42%] left-[7%] opacity-[0.06] pointer-events-none" style={{ animation: "float2 10s ease-in-out infinite" }}>
-          <svg width="56" height="40" viewBox="0 0 48 32" fill="#2563EB">
-            <rect width="48" height="32" rx="16"/>
-            <circle cx="12" cy="16" r="5" fill="white"/>
-            <rect x="22" y="13" width="20" height="4" rx="2" fill="white"/>
-          </svg>
-        </div>
-
-        {/* f: Mid-right toggle/avatar row */}
-        <div className="absolute top-[55%] right-[7%] opacity-[0.06] pointer-events-none" style={{ animation: "float1 11s ease-in-out infinite" }}>
-          <svg width="76" height="24" viewBox="0 0 64 20" fill="#2563EB">
-            <circle cx="10" cy="10" r="10"/>
-            <rect x="24" y="7" width="28" height="4" rx="2" fill="white"/>
-            <rect x="56" y="5" width="8" height="10" rx="5" fill="white"/>
-          </svg>
-        </div>
-
-        {/* g: Wide card — top-left center */}
-        <div className="absolute top-[30%] left-[3%] opacity-[0.06] pointer-events-none" style={{ animation: "float3 12s ease-in-out infinite" }}>
-          <svg width="110" height="40" viewBox="0 0 110 40" fill="#2563EB">
-            <rect width="110" height="40" rx="6"/>
-            <rect x="8" y="8" width="40" height="5" rx="2" fill="white"/>
-            <rect x="8" y="18" width="80" height="4" rx="2" fill="white"/>
-            <rect x="8" y="28" width="60" height="4" rx="2" fill="white"/>
-          </svg>
-        </div>
-
-        {/* h: Small square — bottom-right center */}
-        <div className="absolute top-[70%] right-[3%] opacity-[0.06] pointer-events-none" style={{ animation: "float4 8s ease-in-out infinite" }}>
-          <svg width="44" height="44" viewBox="0 0 44 44" fill="#2563EB">
-            <rect width="44" height="44" rx="6"/>
-            <rect x="6" y="6" width="14" height="14" rx="2" fill="white"/>
-            <rect x="24" y="6" width="14" height="14" rx="2" fill="white"/>
-            <rect x="6" y="24" width="32" height="4" rx="2" fill="white"/>
-            <rect x="6" y="32" width="22" height="4" rx="2" fill="white"/>
-          </svg>
-        </div>
-
-        {/* i: Pill — top-right area */}
-        <div className="absolute top-[8%] right-[20%] opacity-[0.06] pointer-events-none" style={{ animation: "float2 13s ease-in-out infinite" }}>
-          <svg width="60" height="24" viewBox="0 0 60 24" fill="#2563EB">
-            <rect width="60" height="24" rx="12"/>
-            <circle cx="12" cy="12" r="5" fill="white"/>
-            <rect x="22" y="10" width="28" height="4" rx="2" fill="white"/>
-          </svg>
-        </div>
-
-        {/* j: Mobile frame — bottom-left area */}
-        <div className="absolute bottom-[10%] left-[20%] opacity-[0.06] pointer-events-none" style={{ animation: "float1 14s ease-in-out infinite" }}>
-          <svg width="48" height="72" viewBox="0 0 48 72" fill="#2563EB">
-            <rect width="48" height="72" rx="6"/>
-            <rect x="5" y="8" width="38" height="24" rx="3" fill="white"/>
-            <rect x="5" y="38" width="32" height="4" rx="2" fill="white"/>
-            <rect x="5" y="46" width="24" height="4" rx="2" fill="white"/>
-            <rect x="5" y="58" width="38" height="8" rx="3" fill="white"/>
-          </svg>
-        </div>
-
-        <span className="font-mono text-[18px] font-bold text-[#0F172A] tracking-[-0.3px] mb-10">
+<span className="font-mono text-[18px] font-bold text-[#0F172A] tracking-[-0.3px] mb-10">
           Proof
         </span>
         <h2 className="font-display text-[32px] font-bold text-[#0F172A] tracking-[-0.5px] mb-4 text-center">
@@ -308,7 +188,8 @@ export default function OnboardingFlow() {
 
         <button
           onClick={() => setCurrentStep(2)}
-          className="mt-14 bg-transparent border-none text-[13px] text-[#94A3B8] cursor-pointer"
+          className="mt-14 text-[13px] font-normal text-[#94A3B8] hover:text-[#475569] transition-colors duration-150 cursor-pointer"
+          style={{ background: "transparent", border: "none", padding: 0, fontFamily: "Inter, sans-serif" }}
         >
           ← Cancel and go back
         </button>

@@ -58,7 +58,7 @@ export default function HistoryPage() {
 
         {/* Header */}
         <div style={{ marginBottom: "24px" }}>
-          <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "26px", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.5px", marginBottom: "4px" }}>
+          <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "26px", fontWeight: 700, color: "#0F172A", letterSpacing: "-0.5px", marginBottom: "8px" }}>
             Audit history
           </h1>
           <p style={{ fontSize: "13px", color: "#475569" }}>{metaLine}</p>
@@ -68,7 +68,7 @@ export default function HistoryPage() {
         <div style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "12px", overflow: "hidden" }}>
           {audits.length === 0 ? (
             <div style={{ padding: "48px 20px", textAlign: "center" }}>
-              <p style={{ fontSize: "15px", fontWeight: 600, color: "#0F172A", marginBottom: "4px" }}>No audits yet</p>
+              <p style={{ fontSize: "15px", fontWeight: 600, color: "#0F172A", marginBottom: "8px" }}>No audits yet</p>
               <p style={{ fontSize: "13px", color: "#475569" }}>Run your first Mirror check to get started</p>
             </div>
           ) : (
@@ -103,7 +103,7 @@ export default function HistoryPage() {
                     >
                       {/* Page */}
                       <td style={{ padding: "16px 20px", verticalAlign: "middle" }}>
-                        <p style={{ fontSize: "14px", fontWeight: 500, color: "#0F172A", marginBottom: "3px" }}>
+                        <p style={{ fontSize: "14px", fontWeight: 500, color: "#0F172A", marginBottom: "8px" }}>
                           {audit.result?.title || audit.url}
                         </p>
                         <a

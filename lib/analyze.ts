@@ -148,17 +148,16 @@ Bad examples:
   'When someone scans this portfolio piece, they notice the absence of outcomes.'
 
 HOW TO FIX RULES:
-Maximum 2 bullets. Never 3.
-Each bullet: maximum 12 words.
-Start with a verb.
-Be specific — name the exact thing to change.
-No explanations of why — just what to do.
-Examples of good bullets:
-  'Swap one metric for an outcome number.'
-  'Add one sentence: what changed after you shipped.'
-  'Name the two directions you considered first.'
-Examples of bad bullets:
-  'Consider adding more context about the decision-making process that led you to choose this particular direction over the alternatives you may have explored.'
+Maximum 2 fixes. Never 3.
+Each fix is an object with two fields:
+  "title": 2-4 word phrase that captures the takeaway or essence — NOT a paraphrase of the first words of the action. Write it like a card headline a designer would want to read. Make it feel like a takeaway, not an instruction summary.
+    Good titles: "Show your reasoning", "Name the trade-off", "Close the loop", "Make impact visible", "Prove it shipped", "Surface the decision"
+    Bad titles: "Swap the metric", "Add a sentence", "Name directions" — these just echo the action text
+  "text": the action to take — maximum 12 words, starts with a verb, specific, no explanations of why
+Examples of good fix objects:
+  { "title": "Prove it shipped", "text": "Add one sentence: what changed after you shipped." }
+  { "title": "Surface the trade-off", "text": "Name the two directions you considered first." }
+  { "title": "Make impact visible", "text": "Swap one output metric for an outcome number." }
 
 SUMMARY RULES:
 The summary has two parts — headline and body.
@@ -242,7 +241,10 @@ OUTPUT FORMAT:
       "severity": "Critical | Improve | Polish",
       "title": "Max 8 words, plain language, texting-a-colleague tone",
       "explanation": "2 sentences max. Sentence 1 starts with 'A hiring manager reading this...' or 'When someone scans this...'. Sentence 2 explains why it matters for hiring.",
-      "fix": "2-3 concrete action-verb bullets. Specific enough to act on today.",
+      "fix": [
+        { "title": "2-4 word takeaway title", "text": "Concrete action, max 12 words, starts with verb." },
+        { "title": "2-4 word takeaway title", "text": "Concrete action, max 12 words, starts with verb." }
+      ],
       "time_estimate_minutes": 20
     }
   ],

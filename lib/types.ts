@@ -2,13 +2,18 @@ export type PageType = "case_study" | "homepage" | "about" | "other";
 
 export type FlagSeverity = "Critical" | "Improve" | "Polish";
 
+export interface FixItem {
+  title: string;
+  text: string;
+}
+
 export interface AuditFlag {
   dimension: string;
   type: string;
   severity: FlagSeverity;
   title: string;
   explanation: string;
-  fix: string;
+  fix: string | FixItem[];
   time_estimate_minutes: number;
 }
 
