@@ -566,10 +566,11 @@ function MirrorContent() {
                             {audit.result.strengths.map((s, i) => {
                               return (
                                 <div key={i} style={{ background: "#F8FAFC", borderRadius: "8px", padding: "8px 12px", display: "flex", alignItems: "center", gap: "8px", marginBottom: i < audit.result.strengths!.length - 1 ? "12px" : 0 }}>
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                                    <circle cx="12" cy="12" r="9" />
-                                    <path d="M9 12l2 2 4-4" />
-                                  </svg>
+                                  <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "#16A34A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                                      <polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                  </div>
                                   <p style={{ fontSize: "13px", fontWeight: 500, color: "#0F172A", margin: 0 }}>{s.label}</p>
                                 </div>
                               );
@@ -601,9 +602,6 @@ function MirrorContent() {
                           {hasAddressedFlags && (
                             <div className="mt-6">
                               <div className="flex items-center gap-[4px] mb-2">
-                                <svg className="w-4 h-4 text-[#16A34A] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
                                 <p className="text-[14px] font-semibold text-[#16A34A]">Addressed</p>
                               </div>
                               {ordered.map((flag, gi) => {
@@ -617,14 +615,12 @@ function MirrorContent() {
                                         ? "flagDismiss 250ms ease-in forwards"
                                         : "fadeInUp 200ms ease-out 50ms both",
                                     }}
-                                    className={`flex items-center gap-2 rounded-lg px-4 py-4 mb-3 cursor-pointer border bg-[#F8FAFC] transition-colors ${
-                                      selectedFlagIdx === gi
-                                        ? "border-[#2563EB]"
-                                        : "border-[#E2E8F0] hover:bg-[#F1F5F9]"
-                                    }`}
+                                    className={`flex items-center gap-2 rounded-lg px-4 py-4 mb-3 cursor-pointer transition-colors ${selectedFlagIdx === gi ? "bg-[#E2E8F0]" : "bg-[#F8FAFC] hover:bg-[#F1F5F9]"}`}
                                   >
-                                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold bg-[#16A34A] text-white">
-                                      {gi + 1}
+                                    <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "#16A34A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                      <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                                        <polyline points="2,6 5,9 10,3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                      </svg>
                                     </div>
                                     <span className="text-[14px] font-medium flex-1 min-w-0 truncate overflow-hidden text-[#94A3B8] line-through">
                                       {flag.title}
@@ -634,9 +630,6 @@ function MirrorContent() {
                                       <span style={{ fontSize: "12px", fontWeight: 500, padding: "3px 10px", borderRadius: "20px", whiteSpace: "nowrap", backgroundColor: "#F0FDF4", color: "#15803D", border: "1px solid #BBF7D0" }}>
                                         {flag.type}
                                       </span>
-                                      <svg className="w-4 h-4 text-[#16A34A] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
                                     </div>
                                   </div>
                                 );
