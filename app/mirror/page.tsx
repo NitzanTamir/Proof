@@ -325,7 +325,7 @@ function MirrorContent() {
       setSelectedFlagIdx(0);
     } finally {
       console.log("analysis complete, setting isAnalyzing false");
-      setIsAnalyzing(false);
+      setTimeout(() => setIsAnalyzing(false), 800);
     }
   }
 

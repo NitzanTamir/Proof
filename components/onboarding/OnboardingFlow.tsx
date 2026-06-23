@@ -12,11 +12,11 @@ interface Answers {
 const TOTAL_STEPS = 4;
 
 const LOADING_STEPS = [
-  { label: "Reading your portfolio cover to cover", sub: "found 3 case studies" },
-  { label: "Looking for the story behind the work", sub: null },
-  { label: "Running it past an imaginary hiring panel", sub: null },
-  { label: "Stress-testing your case study logic", sub: null },
-  { label: "Almost there — compiling your results", sub: null },
+  { label: "Reading every word. Yes, all of them.", sub: "found 3 case studies" },
+  { label: "Looking for the story behind the decisions", sub: null },
+  { label: "Putting it in front of a tough crowd", sub: null },
+  { label: "Poking holes in the logic", sub: null },
+  { label: "Writing up the verdict — almost there", sub: null },
 ];
 
 export default function OnboardingFlow() {
@@ -127,13 +127,13 @@ export default function OnboardingFlow() {
           Proof
         </span>
         <h2 className="font-display text-[32px] font-bold text-[#0F172A] tracking-[-0.5px] mb-4 text-center">
-          Analyzing your portfolio
+          Your portfolio is in the hot seat
         </h2>
-        <p className="text-[15px] text-[#475569] text-center mb-[52px]">
-          This takes about 30 seconds
+        <p className="text-[20px] font-medium text-[#0F172A] text-center mb-[52px]">
+          A very opinionated AI senior designer is reading it now — give them 30 seconds
         </p>
 
-        <div className="flex flex-col items-start w-[320px] min-h-[220px]">
+        <div className="flex flex-col items-start w-[360px] min-h-[220px]">
           {LOADING_STEPS.map((step, i) => {
             if (i >= visibleCount) return null;
             const done   = loadingStep > i;
@@ -166,7 +166,7 @@ export default function OnboardingFlow() {
                   <div className="w-5 h-5 rounded-full border-2 border-[#CBD5E1] flex-shrink-0" />
                 )}
                 <div>
-                  <p className={`text-[15px] m-0 ${active ? "font-medium" : "font-normal"} ${done ? "text-[#475569]" : active ? "text-[#0F172A]" : "text-[#94A3B8]"}`}>
+                  <p className={`text-[15px] m-0 ${active ? "font-semibold" : "font-normal"} ${done ? "text-[#475569]" : active ? "text-[#0F172A]" : "text-[#334155]"}`}>
                     {step.label}
                   </p>
                   {done && step.sub && (
@@ -188,10 +188,11 @@ export default function OnboardingFlow() {
 
         <button
           onClick={() => setCurrentStep(2)}
-          className="mt-14 text-[13px] font-normal text-[#94A3B8] hover:text-[#475569] transition-colors duration-150 cursor-pointer"
-          style={{ background: "transparent", border: "none", padding: 0, fontFamily: "Inter, sans-serif" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#1D4ED8")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#2563EB")}
+          style={{ display: "inline-flex", alignItems: "center", background: "transparent", border: "none", padding: 0, color: "#2563EB", fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "Inter, sans-serif", marginTop: "56px", transition: "color 150ms ease" }}
         >
-          ← Cancel and go back
+          Cancel and go back
         </button>
       </div>
     );
